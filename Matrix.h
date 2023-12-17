@@ -24,8 +24,8 @@ public:
 
 	std::vector<double> row(const int index) const;
 	std::vector<double> col(const int index) const;
-	void setRow(const std::vector<double>& a);
-	void setCol(const std::vector<double>& a);
+	void setRow(const int index, const std::vector<double>& a);
+	void setCol(const int index, const std::vector<double>& a);
 	void shiftRows(const int firstIndex, const int secondIndex);
 	void shiftColumns(const int firstIndex, const int secondIndex);
 

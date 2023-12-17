@@ -156,20 +156,31 @@ std::vector<double> Matrix::col(const int index) const {
 	return result;
 }
 
-void Matrix::setRow(const std::vector<double>& a) {
+void Matrix::setRow(const int index, const std::vector<double>& a) {
+	auto temp = a.begin();
 
+	for (int i = 0; i < columns && temp != a.end(); i++)
+		elements[index][i] = *(temp++);
 }
 
-void Matrix::setCol(const std::vector<double>& a) {
+void Matrix::setCol(const int index, const std::vector<double>& a) {
+	auto temp = a.begin();
 
+	for (int i = 0; i < rows && temp != a.end(); i++)
+		elements[i][index] = *(temp++);
 }
 
 void Matrix::shiftRows(const int firstIndex, const int secondIndex) {
-
+	auto temp = row(firstIndex);
+	this->setRow(firstIndex, row(secondIndex));
+	this->setRow(secondIndex, temp);
 }
 
 void Matrix::shiftColumns(const int firstIndex, const int secondIndex) {
-
+	auto temp = col(firstIndex);
+	this->setCol(firstIndex, col(secondIndex));
+	this->setCol(secondIndex, temp);
+	std::swap(indexes[firstIndex], indexes[secondIndex]);
 }
 
 Matrix Matrix::T() const {
