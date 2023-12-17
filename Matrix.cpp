@@ -7,18 +7,37 @@ Matrix::Matrix() {
 	indexes = nullptr;
 }
 
-Matrix::Matrix(const int a, const int b, const std::initializer_list<double>& e) {
-	rows = a;
-	columns = b;
+Matrix::Matrix(const int rws, const int clmns, const std::initializer_list<double>& vals) {
+	rows = rws;
+	columns = clmns;
 
 	indexes = new double[columns];
-	*elements = new double[rows];
+	elements = new double*[rows];
 	for (int i = 0; i < rows; i++)
 		elements[i] = new double[columns];
 
-	auto temp = e.begin();
+	auto temp = vals.begin();
 	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < columns && temp != e.end(); j++)
+		for (int j = 0; j < columns && temp != vals.end(); j++)
+			elements[i][j] = *(temp++);
+	}
+
+	for (int i = 0; i < columns; i++)
+		indexes[i] = i;
+}
+
+Matrix::Matrix(const int rws, const int clmns, const std::vector<double>& vals) {
+	rows = rws;
+	columns = clmns;
+
+	indexes = new double[columns];
+	elements = new double*[rows];
+	for (int i = 0; i < rows; i++)
+		elements[i] = new double[columns];
+
+	auto temp = vals.begin();
+	for (int i = 0; i < rows; i++) {
+		for (int j = 0; j < columns && temp != vals.end(); j++)
 			elements[i][j] = *(temp++);
 	}
 
@@ -40,7 +59,7 @@ Matrix::Matrix(const Matrix& m) {
 	for (int i = 0; i < columns; i++)
 		indexes[i] = m.indexes[i];
 
-	*elements = new double[rows];
+	elements = new double*[rows];
 	for (int i = 0; i < rows; i++)
 		elements[i] = new double[columns];
 
@@ -81,7 +100,7 @@ Matrix& Matrix::operator=(const Matrix& m) {
 	for (int i = 0; i < columns; i++)
 		indexes[i] = m.indexes[i];
 
-	*elements = new double[rows];
+	elements = new double*[rows];
 	for (int i = 0; i < rows; i++)
 		elements[i] = new double[columns];
 
@@ -108,6 +127,8 @@ Matrix& Matrix::operator=(Matrix&& m) noexcept{
 	m.columns = 0;
 	m.elements = nullptr;
 	m.indexes = nullptr;
+
+	return *this;
 }
 
 Matrix::~Matrix() {
@@ -115,4 +136,58 @@ Matrix::~Matrix() {
 		delete[] elements[i];
 	delete[] elements;
 	delete[] indexes;
+}
+
+std::vector<double> Matrix::row(const int index) const {
+	std::vector<double> result;
+
+	for (int i = 0; i < columns; i++)
+		result.push_back(elements[index][i]);
+
+	return result;
+}
+
+std::vector<double> Matrix::col(const int index) const {
+	std::vector<double> result;
+
+	for (int i = 0; i < rows; i++)
+		result.push_back(elements[i][index]);
+
+	return result;
+}
+
+void Matrix::setRow(const std::vector<double>& a) {
+
+}
+
+void Matrix::setCol(const std::vector<double>& a) {
+
+}
+
+void Matrix::shiftRows(const int firstIndex, const int secondIndex) {
+
+}
+
+void Matrix::shiftColumns(const int firstIndex, const int secondIndex) {
+
+}
+
+Matrix Matrix::T() const {
+	std::vector<double> x;
+
+	for (int j = 0; j < columns; j++) {
+		for (int i = 0; i < rows; i++)
+			x.push_back(elements[i][j]);
+	}
+
+	return Matrix(columns, rows, x);
+}
+
+void Matrix::show() const {
+	for (int i = 0; i < rows; i++) {
+		for (int j = 0; j < columns; j++) {
+			std::cout << elements[i][j] << '\t';
+		}
+		std::cout << std::endl;
+	}
 }
