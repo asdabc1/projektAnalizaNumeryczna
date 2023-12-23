@@ -194,11 +194,31 @@ Matrix Matrix::T() const {
 	return Matrix(columns, rows, x);
 }
 
+Matrix Matrix::solve() const {
+	int c = ncols() - 3;
+	std::vector<double> vals;
+
+	vals.push_back((*this)[nrows() - 1][ncols() - 2] / (*this)[nrows() - 1][ncols() - 1]);
+
+	for (int i = nrows() - 2; i >= 0; i--, c--) {
+		auto pt = vals.rbegin();
+		double m = elements[i][ncols() - 1];
+
+		for (int j = ncols() - 2; j > c; j--) {
+			m -= elements[i][j] * (*pt++);
+		}
+		vals.push_back(m / elements[i][c]);
+	}
+
+	std::reverse(vals.begin(), vals.end());
+	return Matrix(rows, 1, vals);
+}
+
 void Matrix::show() const {
 	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < columns; j++) {
+		for (int j = 0; j < columns; j++)
 			std::cout << elements[i][j] << '\t';
-		}
+
 		std::cout << std::endl;
 	}
 }
