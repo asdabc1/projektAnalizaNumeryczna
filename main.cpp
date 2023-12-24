@@ -15,8 +15,8 @@ enum {
 	maksPel = 2
 };
 
-Matrix przyklad1(4, 5, { 1,1,0,-3,1,1,4,-1,-4,-2,0.5,0.5,-3,-5.5,1.5,1.5,3,-5,-9,-0.5 });
-Matrix przyklad2(4, 5, { 2.25,-2.5,4,-5.25,-1,-3,-7.5,6.5,0,17,-6.25,-12.5,0.25,5.25,24.25,9,10,7,-21,-33 });
+const Matrix przyklad1(4, 5, { 1,1,0,-3,1,1,4,-1,-4,-2,0.5,0.5,-3,-5.5,1.5,1.5,3,-5,-9,-0.5 });
+const Matrix przyklad2(4, 5, { 2.25,-2.5,4,-5.25,-1,-3,-7.5,6.5,0,17,-6.25,-12.5,0.25,5.25,24.25,9,10,7,-21,-33 });
 
 int main() {
 	using std::cout;
@@ -32,14 +32,16 @@ int main() {
 	cin >> t;
 	switch (t) {
 	case podstawowa:
-		cout << "macierz wprowadzana recznie czy przykladowa? (r/p)";
+		cout << "macierz wprowadzana recznie czy przykladowa? (r/p): ";
 		cin >> te;
 		if (te == 'p') {
-			Matrix result = gaussPodst(przyklad1);
-			sol = result.solve();
+			sol = gaussPodst(przyklad1);
+			sol = sol.solve();
 		}
-		else
-			gaussPodst(manualInput());
+		else {
+			sol = gaussPodst(manualInput());
+			sol = sol.solve();
+		}
 		break;
 
 	case maksKol:
@@ -71,7 +73,6 @@ Matrix gaussPodst(const Matrix& m)
 {
 	Matrix temp(m);
 	double p;
-	int c = -1;
 	std::vector<double> rw1, rw2;
 
 	for (int i = 0; i < (m.ncols() > m.nrows() ? m.nrows() : m.ncols()); i++) {
@@ -83,13 +84,17 @@ Matrix gaussPodst(const Matrix& m)
 
 	for (int i = 0; i < temp.nrows() - 1; i++) {
 		rw1 = temp.row(i);
-		++c;
 
 		for (int j = i+1; j < temp.nrows(); j++) {
+			if (temp[i][i] == 0) {
+				std::cout << "element [" << i << "][" << i << "] jest =0!\n";
+				return Matrix();
+			}
+
 			p = temp[j][i] / temp[i][i];
 			rw2 = temp.row(j);
 			
-			for (int k = c; k < rw2.size(); k++)
+			for (int k = i; k < rw2.size(); k++)
 				rw2[k] = rw2[k] - p * rw1[k];
 
 			temp.setRow(j, rw2);
@@ -114,20 +119,20 @@ Matrix manualInput() {
 
 	std::string temp;
 	std::stringstream st;
+	int a, b, c;
 
 	cout << "Podaj ilosc wierszy i kolumn (oddzielone spacja): ";
 	std::cin.get();
-	std::getline(std::cin, temp);
+	std::getline(std::cin, temp, '\n');
 	st << temp;
-	int a, b, c;
 	st >> a >> b;
 
 	std::vector<double> vals;
 
 	cout << "Podaj elementy macierzy (oddzielone spacja, jednym ciagiem, wprowadzanie po wierszach)\n";
 	
-	std::cin.get();
-	std::getline(std::cin, temp);
+	st = std::stringstream();
+	std::getline(std::cin, temp, '\n');
 	st << temp;
 	for (int i = 0; i < a * b; i++) {
 		st >> c;

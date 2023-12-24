@@ -70,10 +70,12 @@ Matrix::Matrix(const Matrix& m) {
 }
 
 Matrix::Matrix(Matrix&& m) noexcept{
-	for (int i = 0; i < rows; i++)
-		delete[] elements[i];
-	delete[] elements;
-	delete[] indexes;
+	if (rows > 0 && columns > 0) {
+		for (int i = 0; i < rows; i++)
+			delete[] elements[i];
+		delete[] elements;
+		delete[] indexes;
+	}
 
 	rows = m.rows;
 	columns = m.columns;
@@ -113,10 +115,12 @@ Matrix& Matrix::operator=(const Matrix& m) {
 }
 
 Matrix& Matrix::operator=(Matrix&& m) noexcept{
-	for (int i = 0; i < rows; i++)
-		delete[] elements[i];
-	delete[] elements;
-	delete[] indexes;
+	if (rows > 0 && columns > 0) {
+		for (int i = 0; i < rows; i++)
+			delete[] elements[i];
+		delete[] elements;
+		delete[] indexes;
+	}
 
 	rows = m.rows;
 	columns = m.columns;
@@ -194,7 +198,19 @@ Matrix Matrix::T() const {
 	return Matrix(columns, rows, x);
 }
 
+void Matrix::realign() {
+	for (int i = 0; i < columns; i++) {
+		for (int j = 0; j < columns; j++) {
+			if (indexes[j] == i) {
+				this->shiftColumns(i, j);
+				break;
+			}
+		}
+	}
+}
+
 Matrix Matrix::solve() const {
+
 	int c = ncols() - 3;
 	std::vector<double> vals;
 
