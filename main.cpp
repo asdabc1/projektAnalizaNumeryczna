@@ -1,4 +1,6 @@
 #include "Matrix.h"
+#include <cmath>
+#include <functional>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -8,6 +10,7 @@ Matrix gaussKol(const Matrix& m);
 Matrix gaussPel(const Matrix& m);
 
 Matrix manualInput();
+void wywolanie(const Matrix& m, std::function<Matrix(Matrix const&)> f);
 
 enum {
 	podstawowa = 0,
@@ -26,7 +29,7 @@ int main() {
 	int t;
 	char te;
 
-	Matrix sol;
+	Matrix sol, temp;
 
 	cout << "Podaj wykorzystywana metode (0 - podstawowa, 1 - przesuniecie kolumn, 2 - pelna): ";
 	cin >> t;
@@ -34,30 +37,28 @@ int main() {
 	case podstawowa:
 		cout << "macierz wprowadzana recznie czy przykladowa? (r/p): ";
 		cin >> te;
-		if (te == 'p') {
-			sol = gaussPodst(przyklad1);
-			sol = sol.solve();
-		}
-		else {
-			sol = gaussPodst(manualInput());
-			sol = sol.solve();
-		}
+		if (te == 'p')
+			wywolanie(przyklad1, gaussPodst);
+		else
+			wywolanie(manualInput(), gaussPodst);
 		break;
 
-	case maksKol:
+	/*case maksKol:
 		cout << "macierz wprowadzana recznie czy przykladowa? (r/p)";
-		if (cin.get() == 'p')
-			gaussKol(przyklad2);
+		cin >> te;
+		if (te == 'p')
+			
 		else
-			gaussKol(manualInput());
-		break;
+			
+		break;*/
 
 	case maksPel:
 		cout << "macierz wprowadzana recznie czy przykladowa? (r/p)";
-		if (cin.get() == 'p')
-			gaussPel(przyklad2);
+		cin >> te;
+		if (te == 'p')
+			wywolanie(przyklad2, gaussPel);
 		else
-			gaussPel(manualInput());
+			wywolanie(przyklad2, gaussPel);
 		break;
 
 	default:
@@ -69,18 +70,10 @@ int main() {
 	return 0;
 }
 
-Matrix gaussPodst(const Matrix& m)
-{
+Matrix gaussPodst(const Matrix& m) {
 	Matrix temp(m);
 	double p;
 	std::vector<double> rw1, rw2;
-
-	for (int i = 0; i < (m.ncols() > m.nrows() ? m.nrows() : m.ncols()); i++) {
-		if (temp[i][i] == 0) {
-			std::cout << "wartosc na przekatnej =0";
-			return Matrix();
-		}
-	}
 
 	for (int i = 0; i < temp.nrows() - 1; i++) {
 		rw1 = temp.row(i);
@@ -92,6 +85,8 @@ Matrix gaussPodst(const Matrix& m)
 			}
 
 			p = temp[j][i] / temp[i][i];
+			if (p == 0)
+				continue;
 			rw2 = temp.row(j);
 			
 			for (int k = i; k < rw2.size(); k++)
@@ -100,18 +95,54 @@ Matrix gaussPodst(const Matrix& m)
 			temp.setRow(j, rw2);
 		}
 	}
-
 	return temp;
 }
 
-Matrix gaussKol(const Matrix& m)
-{
+Matrix gaussKol(const Matrix& m) {
+
 	return Matrix();
 }
 
-Matrix gaussPel(const Matrix& m)
-{
-	return Matrix();
+Matrix gaussPel(const Matrix& m) {
+	Matrix temp(m);
+	double p;
+
+	for (int i = 0; i < temp.nrows(); i++) {
+		int maxx = i, maxy = i;
+		double maxv = 0;
+
+		for (int j = i; j < temp.nrows(); j++) {
+			for (int k = i; k < temp.ncols() - 1; k++) {
+				if (std::fabs(temp[j][k]) > maxv) {
+					maxx = j;
+					maxy = k;
+					maxv = std::fabs(temp[j][k]);
+				}
+			}
+		}
+		if (i != maxx)
+			temp.shiftRows(i, maxx);
+		if (i != maxy)
+			temp.shiftColumns(i, maxy);
+
+		for (int j = i + 1; j < temp.nrows(); j++) {
+			if (temp[i][i] == 0) {
+				std::cout << "element [" << i << "][" << i << "] jest =0!\n";
+				return Matrix();
+			}
+
+			p = temp[j][i] / temp[i][i];
+
+			if (p == 0)
+				continue;
+			
+			for (int k = 0; k < temp.ncols(); k++) {
+				temp[j][k] = temp[j][k] - temp[i][k] * p;
+			}
+			
+		}
+	}
+	return temp;
 }
 
 Matrix manualInput() {
@@ -119,7 +150,7 @@ Matrix manualInput() {
 
 	std::string temp;
 	std::stringstream st;
-	int a, b, c;
+	int a, b;
 
 	cout << "Podaj ilosc wierszy i kolumn (oddzielone spacja): ";
 	std::cin.get();
@@ -131,6 +162,7 @@ Matrix manualInput() {
 
 	cout << "Podaj elementy macierzy (oddzielone spacja, jednym ciagiem, wprowadzanie po wierszach)\n";
 	
+	double c;
 	st = std::stringstream();
 	std::getline(std::cin, temp, '\n');
 	st << temp;
@@ -142,3 +174,9 @@ Matrix manualInput() {
 	return Matrix(a, b, vals);
 }
 
+void wywolanie(const Matrix& m, std::function<Matrix(Matrix const&)> f) {
+	Matrix sol = f(m);
+
+	sol = sol.solve();
+	sol.T().show();
+}

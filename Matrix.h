@@ -1,8 +1,8 @@
 #pragma once
+#include <algorithm>
 #include <initializer_list>
 #include <iostream>
 #include <vector>
-#include <algorithm>
 
 
 class Matrix {
@@ -25,20 +25,21 @@ public:
 
 	std::vector<double> row(const int index) const;
 	std::vector<double> col(const int index) const;
-	void setRow(const int index, const std::vector<double>& a);
-	void setCol(const int index, const std::vector<double>& a);
-	void shiftRows(const int firstIndex, const int secondIndex);
-	void shiftColumns(const int firstIndex, const int secondIndex);
+	Matrix& setRow(const int index, const std::vector<double>& a);
+	Matrix& setCol(const int index, const std::vector<double>& a);
+	Matrix& shiftRows(const int firstIndex, const int secondIndex);
+	Matrix& shiftColumns(const int firstIndex, const int secondIndex);
 
 	double*& operator[](const int row) { return elements[row]; }
 	double* operator[](const int row) const { return elements[row]; }
 
 	Matrix T() const;
-	void realign();		//aligns columns in their original order
+	Matrix& realign();		//aligns columns in their original order
 	Matrix solve() const;
 
 	void show() const;
 	int nrows() const { return this->rows; }
 	int ncols() const { return this->columns; }
-
+	
+	friend std::ostream& operator<<(std::ostream& o, const Matrix& m);
 };

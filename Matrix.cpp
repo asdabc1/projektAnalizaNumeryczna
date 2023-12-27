@@ -70,7 +70,7 @@ Matrix::Matrix(const Matrix& m) {
 }
 
 Matrix::Matrix(Matrix&& m) noexcept{
-	if (rows > 0 && columns > 0) {
+	if (reinterpret_cast<int>(elements) > 0 && reinterpret_cast<int>(indexes) > 0) {
 		for (int i = 0; i < rows; i++)
 			delete[] elements[i];
 		delete[] elements;
@@ -115,7 +115,7 @@ Matrix& Matrix::operator=(const Matrix& m) {
 }
 
 Matrix& Matrix::operator=(Matrix&& m) noexcept{
-	if (rows > 0 && columns > 0) {
+	if (reinterpret_cast<int>(elements) > 0 && reinterpret_cast<int>(indexes) > 0) {
 		for (int i = 0; i < rows; i++)
 			delete[] elements[i];
 		delete[] elements;
@@ -160,31 +160,39 @@ std::vector<double> Matrix::col(const int index) const {
 	return result;
 }
 
-void Matrix::setRow(const int index, const std::vector<double>& a) {
+Matrix& Matrix::setRow(const int index, const std::vector<double>& a) {
 	auto temp = a.begin();
 
 	for (int i = 0; i < columns && temp != a.end(); i++)
 		elements[index][i] = *(temp++);
+
+	return *this;
 }
 
-void Matrix::setCol(const int index, const std::vector<double>& a) {
+Matrix& Matrix::setCol(const int index, const std::vector<double>& a) {
 	auto temp = a.begin();
 
 	for (int i = 0; i < rows && temp != a.end(); i++)
 		elements[i][index] = *(temp++);
+
+	return *this;
 }
 
-void Matrix::shiftRows(const int firstIndex, const int secondIndex) {
+Matrix& Matrix::shiftRows(const int firstIndex, const int secondIndex) {
 	auto temp = row(firstIndex);
 	this->setRow(firstIndex, row(secondIndex));
 	this->setRow(secondIndex, temp);
+
+	return *this;
 }
 
-void Matrix::shiftColumns(const int firstIndex, const int secondIndex) {
+Matrix& Matrix::shiftColumns(const int firstIndex, const int secondIndex) {
 	auto temp = col(firstIndex);
 	this->setCol(firstIndex, col(secondIndex));
 	this->setCol(secondIndex, temp);
 	std::swap(indexes[firstIndex], indexes[secondIndex]);
+
+	return *this;
 }
 
 Matrix Matrix::T() const {
@@ -198,7 +206,7 @@ Matrix Matrix::T() const {
 	return Matrix(columns, rows, x);
 }
 
-void Matrix::realign() {
+Matrix& Matrix::realign() {
 	for (int i = 0; i < columns; i++) {
 		for (int j = 0; j < columns; j++) {
 			if (indexes[j] == i) {
@@ -207,27 +215,33 @@ void Matrix::realign() {
 			}
 		}
 	}
+	return *this;
 }
 
 Matrix Matrix::solve() const {
-
-	int c = ncols() - 3;
 	std::vector<double> vals;
+	int c = 0;
+	vals.push_back(elements[rows - 1][columns - 1] / elements[rows - 1][columns - 2]);
 
-	vals.push_back((*this)[nrows() - 1][ncols() - 2] / (*this)[nrows() - 1][ncols() - 1]);
-
-	for (int i = nrows() - 2; i >= 0; i--, c--) {
+	for (int i = rows - 2; i >= 0; i--, c++) {
+		double r = elements[i][columns - 1];
 		auto pt = vals.rbegin();
-		double m = elements[i][ncols() - 1];
 
-		for (int j = ncols() - 2; j > c; j--) {
-			m -= elements[i][j] * (*pt++);
+		for (int j = columns - 2; j >= columns - 2 - c && j >= 0; j--) {
+			r -= elements[i][j] * (*pt++);
 		}
-		vals.push_back(m / elements[i][c]);
+
+		vals.insert(vals.begin(), r / elements[i][columns - 3 - c]);
 	}
 
-	std::reverse(vals.begin(), vals.end());
-	return Matrix(rows, 1, vals);
+	Matrix result(1, rows, vals);
+
+	for (int i = 0; i < rows; i++)
+		result.indexes[i] = this->indexes[i];
+
+	result.realign();
+
+	return result.T();
 }
 
 void Matrix::show() const {
@@ -237,4 +251,9 @@ void Matrix::show() const {
 
 		std::cout << std::endl;
 	}
+}
+
+std::ostream& operator<<(std::ostream& o, const Matrix& m) {
+	m.show();
+	return o;
 }
