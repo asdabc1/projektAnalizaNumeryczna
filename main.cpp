@@ -11,11 +11,13 @@ Matrix gaussPel(const Matrix& m);
 
 Matrix manualInput();
 void wywolanie(const Matrix& m, std::function<Matrix(Matrix const&)> f);
+void wybor(const Matrix& eg, std::function<Matrix(Matrix const&)> f);
 
 enum {
 	podstawowa = 0,
 	maksKol = 1,
-	maksPel = 2
+	maksPel = 2,
+	galeria = 3
 };
 
 const double eps = 1e-7;
@@ -26,50 +28,59 @@ const Matrix osobliwa(3, 3, {1, 2, 1, 3, -7, -2, 2, 4, 2});
 
 int main() {
 	using std::cout;
-	using std::endl;
 	using std::cin;
 
 	int t;
-	char te;
 
-	Matrix sol, temp;
-
-	cout << "Podaj wykorzystywana metode (0 - podstawowa, 1 - przesuniecie kolumn, 2 - pelna): ";
+	cout << "Podaj wykorzystywana metode (0 - podstawowa, 1 - przesuniecie kolumn, 2 - pelna, 3 - galeria przykladow): ";
 	cin >> t;
 	switch (t) {
 	case podstawowa:
-		cout << "macierz wprowadzana recznie czy przykladowa? (r/p): ";
-		cin >> te;
-		if (te == 'p')
-			wywolanie(przyklad1, gaussPodst);
-		else
-			wywolanie(manualInput(), gaussPodst);
+		
+		wybor(przyklad1, gaussPodst);
+
 		break;
 
 	case maksKol:
-		cout << "macierz wprowadzana recznie czy przykladowa? (r/p)";
-		cin >> te;
-		if (te == 'p')
-			wywolanie(przyklad2, gaussKol);
-		else
-			wywolanie(manualInput(), gaussKol);
+		
+		wybor(przyklad2, gaussKol);
+
 		break;
 
 	case maksPel:
-		cout << "macierz wprowadzana recznie czy przykladowa? (r/p)";
-		cin >> te;
-		if (te == 'p')
-			wywolanie(przyklad2, gaussPel);
-		else
-			wywolanie(manualInput(), gaussPel);
+		
+		wybor(przyklad2, gaussKol);
+
+		break;
+
+	case galeria:
+		
+		cout << "dostepne macierze to przyklad1 (1), przyklad2 (2) i macierz osobliwa (3)\nWybierz macierz: _\b";
+		cin >> t;
+
+		switch (t) {
+		case 1:
+			przyklad1.show();
+			break;
+
+		case 2:
+			przyklad2.show();
+			break;
+
+		case 3:
+			osobliwa.show();
+			break;
+		}
+
+		cin.get();
 		break;
 
 	default:
 		cout << "wprowadzono nieprawidlowa wartosc!\n";
 	}
 
-	sol.show();
-
+	cout << "nacisnij ENTER, aby zakonczyc\n";
+	cin.get();
 	return 0;
 }
 
@@ -213,4 +224,20 @@ void wywolanie(const Matrix& m, std::function<Matrix(Matrix const&)> f) {
 
 	sol = sol.solve();
 	sol.T().show();
+}
+
+void wybor(const Matrix& eg, std::function<Matrix(Matrix const&)> f) {
+	char te;
+
+	std::cout << "macierz przykladowa - p, macierz wprowadzana recznie - r, macierz osobliwa - o:\n_ (p, r lub o)\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b";
+	std::cin >> te;
+
+	if (te == 'p')
+		wywolanie(eg, f);
+	else if (te == 'r')
+		wywolanie(manualInput(), f);
+	else if (te == 'o')
+		wywolanie(osobliwa, f);
+	else
+		std::cout << "nieprawidlowy wybor\n";
 }
