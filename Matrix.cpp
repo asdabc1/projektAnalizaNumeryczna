@@ -219,6 +219,11 @@ Matrix& Matrix::realign() {
 }
 
 Matrix Matrix::solve() const {
+	for (int i = 0; i < rows; i++)
+		if (elements[i][i] == 0) {
+			std::cout << "element na przekatnej =0, nie mozna rozwiazac macierzy!\n";
+			return Matrix();
+		}
 	std::vector<double> vals;
 	int c = 0;
 	vals.push_back(elements[rows - 1][columns - 1] / elements[rows - 1][columns - 2]);

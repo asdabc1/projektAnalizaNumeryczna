@@ -18,8 +18,11 @@ enum {
 	maksPel = 2
 };
 
+const double eps = 1e-7;
+
 const Matrix przyklad1(4, 5, { 1,1,0,-3,1,1,4,-1,-4,-2,0.5,0.5,-3,-5.5,1.5,1.5,3,-5,-9,-0.5 });
 const Matrix przyklad2(4, 5, { 2.25,-2.5,4,-5.25,-1,-3,-7.5,6.5,0,17,-6.25,-12.5,0.25,5.25,24.25,9,10,7,-21,-33 });
+const Matrix osobliwa(3, 3, {1, 2, 1, 3, -7, -2, 2, 4, 2});
 
 int main() {
 	using std::cout;
@@ -43,14 +46,14 @@ int main() {
 			wywolanie(manualInput(), gaussPodst);
 		break;
 
-	/*case maksKol:
+	case maksKol:
 		cout << "macierz wprowadzana recznie czy przykladowa? (r/p)";
 		cin >> te;
 		if (te == 'p')
-			
+			wywolanie(przyklad2, gaussKol);
 		else
-			
-		break;*/
+			wywolanie(manualInput(), gaussKol);
+		break;
 
 	case maksPel:
 		cout << "macierz wprowadzana recznie czy przykladowa? (r/p)";
@@ -58,7 +61,7 @@ int main() {
 		if (te == 'p')
 			wywolanie(przyklad2, gaussPel);
 		else
-			wywolanie(przyklad2, gaussPel);
+			wywolanie(manualInput(), gaussPel);
 		break;
 
 	default:
@@ -79,13 +82,13 @@ Matrix gaussPodst(const Matrix& m) {
 		rw1 = temp.row(i);
 
 		for (int j = i+1; j < temp.nrows(); j++) {
-			if (temp[i][i] == 0) {
+			if (std::fabs(temp[i][i]) < eps) {
 				std::cout << "element [" << i << "][" << i << "] jest =0!\n";
 				return Matrix();
 			}
 
 			p = temp[j][i] / temp[i][i];
-			if (p == 0)
+			if (std::fabs(p) < eps)
 				continue;
 			rw2 = temp.row(j);
 			
@@ -99,8 +102,39 @@ Matrix gaussPodst(const Matrix& m) {
 }
 
 Matrix gaussKol(const Matrix& m) {
+	Matrix temp(m);
+	double p;
 
-	return Matrix();
+	for (int i = 0; i < temp.nrows(); i++) {
+		int max = i;
+		double maxv = 0;
+
+		for (int j = i; j < temp.ncols() - 1; j++) {
+			if (std::fabs(temp[i][j]) > maxv) {
+				max = j;
+				maxv = std::fabs(temp[i][j]);
+			}
+		}
+
+		if (i != max)
+			temp.shiftColumns(i, max);
+
+		for (int j = i + 1; j < temp.nrows(); j++) {
+			if (std::fabs(temp[i][i]) < eps) {
+				std::cout << "element [" << i << "][" << i << "] jest =0!\n";
+				return Matrix();
+			}
+
+			p = temp[j][i] / temp[i][i];
+
+			if (std::fabs(p) < eps)
+				continue;
+
+			for (int k = 0; k < temp.ncols(); k++)
+				temp[j][k] = temp[j][k] - temp[i][k] * p;
+		}
+	}
+	return temp;
 }
 
 Matrix gaussPel(const Matrix& m) {
@@ -120,25 +154,25 @@ Matrix gaussPel(const Matrix& m) {
 				}
 			}
 		}
+
 		if (i != maxx)
 			temp.shiftRows(i, maxx);
 		if (i != maxy)
 			temp.shiftColumns(i, maxy);
 
 		for (int j = i + 1; j < temp.nrows(); j++) {
-			if (temp[i][i] == 0) {
+			if (std::fabs(temp[i][i]) < eps) {
 				std::cout << "element [" << i << "][" << i << "] jest =0!\n";
 				return Matrix();
 			}
 
 			p = temp[j][i] / temp[i][i];
 
-			if (p == 0)
+			if (std::fabs(p) < eps)
 				continue;
 			
-			for (int k = 0; k < temp.ncols(); k++) {
+			for (int k = 0; k < temp.ncols(); k++)
 				temp[j][k] = temp[j][k] - temp[i][k] * p;
-			}
 			
 		}
 	}
