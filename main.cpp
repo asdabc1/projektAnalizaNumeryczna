@@ -55,22 +55,13 @@ int main() {
 
 	case galeria:
 		
-		cout << "dostepne macierze to przyklad1 (1), przyklad2 (2) i macierz osobliwa (3)\nWybierz macierz: _\b";
-		cin >> t;
-
-		switch (t) {
-		case 1:
-			przyklad1.show();
-			break;
-
-		case 2:
-			przyklad2.show();
-			break;
-
-		case 3:
-			osobliwa.show();
-			break;
-		}
+		cout << "pierwsza macierz przykladowa (wykorzystywana w metodzie podstawowej):\n"
+			<< przyklad1
+			<< "druga macierz przykladowa (wykorzystywana w metodach z elementem maksymalnym):\n"
+			<< przyklad2
+			<< "macierz osobliwa:\n"
+			<< osobliwa
+			<< std::endl;
 
 		cin.get();
 		break;
@@ -191,22 +182,19 @@ Matrix gaussPel(const Matrix& m) {
 }
 
 Matrix manualInput() {
-	using std::cout;
-
 	std::string temp;
 	std::stringstream st;
 	int a, b;
 
-	cout << "Podaj ilosc wierszy i kolumn (oddzielone spacja): ";
+	std::cout << "Podaj ilosc wierszy i kolumn (oddzielone spacja): ";
 	std::cin.get();
 	std::getline(std::cin, temp, '\n');
 	st << temp;
 	st >> a >> b;
 
-	std::vector<double> vals;
-
-	cout << "Podaj elementy macierzy (oddzielone spacja, jednym ciagiem, wprowadzanie po wierszach)\n";
+	std::cout << "Podaj elementy macierzy (oddzielone spacja, jednym ciagiem, wprowadzanie po wierszach)\n";
 	
+	std::vector<double> vals;
 	double c;
 	st = std::stringstream();
 	std::getline(std::cin, temp, '\n');
@@ -232,12 +220,19 @@ void wybor(const Matrix& eg, std::function<Matrix(Matrix const&)> f) {
 	std::cout << "macierz przykladowa - p, macierz wprowadzana recznie - r, macierz osobliwa - o:\n_ (p, r lub o)\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b";
 	std::cin >> te;
 
-	if (te == 'p')
+	if (te == 'p') {
 		wywolanie(eg, f);
+		std::cin.get();
+	}
+
 	else if (te == 'r')
 		wywolanie(manualInput(), f);
-	else if (te == 'o')
+
+	else if (te == 'o') {
 		wywolanie(osobliwa, f);
+		std::cin.get();
+	}
+
 	else
 		std::cout << "nieprawidlowy wybor\n";
 }
