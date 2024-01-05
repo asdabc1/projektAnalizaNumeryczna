@@ -259,6 +259,11 @@ void Matrix::show() const {
 }
 
 std::ostream& operator<<(std::ostream& o, const Matrix& m) {
-	m.show();
+	for (int i = 0; i < m.rows; i++) {
+		for (int j = 0; j < m.columns; j++)
+			o << m.elements[i][j] << '\t';
+
+		o << std::endl;
+	}
 	return o;
 }
