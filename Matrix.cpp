@@ -179,9 +179,7 @@ Matrix& Matrix::setCol(const int index, const std::vector<double>& a) {
 }
 
 Matrix& Matrix::shiftRows(const int firstIndex, const int secondIndex) {
-	auto temp = row(firstIndex);
-	this->setRow(firstIndex, row(secondIndex));
-	this->setRow(secondIndex, temp);
+	std::swap(elements[firstIndex], elements[secondIndex]);
 
 	return *this;
 }

@@ -68,12 +68,22 @@ int main() {
 
 	default:
 		cout << "wprowadzono nieprawidlowa wartosc!\n";
+		cin.get();
 	}
 
 	cout << "nacisnij ENTER, aby zakonczyc\n";
 	cin.get();
 	return 0;
 }
+
+auto krok = [](Matrix& matrix, int a, int b) {
+	if (std::fabs(matrix[a][a]) < eps) {
+		std::cout << "element [" << a << "][" << a << "] jest =0!\n";
+		throw std::invalid_argument("Na przekatnej znajduje sie 0!");
+	}
+
+	return (matrix[b][a] / matrix[a][a]);
+	};
 
 Matrix gaussPodst(const Matrix& m) {
 	Matrix temp(m);
@@ -84,14 +94,11 @@ Matrix gaussPodst(const Matrix& m) {
 		rw1 = temp.row(i);
 
 		for (int j = i+1; j < temp.nrows(); j++) {
-			if (std::fabs(temp[i][i]) < eps) {
-				std::cout << "element [" << i << "][" << i << "] jest =0!\n";
-				return Matrix();
-			}
+			p = krok(temp, i, j);
 
-			p = temp[j][i] / temp[i][i];
 			if (std::fabs(p) < eps)
 				continue;
+
 			rw2 = temp.row(j);
 			
 			for (int k = i; k < rw2.size(); k++)
@@ -122,12 +129,7 @@ Matrix gaussKol(const Matrix& m) {
 			temp.shiftColumns(i, max);
 
 		for (int j = i + 1; j < temp.nrows(); j++) {
-			if (std::fabs(temp[i][i]) < eps) {
-				std::cout << "element [" << i << "][" << i << "] jest =0!\n";
-				return Matrix();
-			}
-
-			p = temp[j][i] / temp[i][i];
+			p = krok(temp, i, j);
 
 			if (std::fabs(p) < eps)
 				continue;
@@ -163,12 +165,7 @@ Matrix gaussPel(const Matrix& m) {
 			temp.shiftColumns(i, maxy);
 
 		for (int j = i + 1; j < temp.nrows(); j++) {
-			if (std::fabs(temp[i][i]) < eps) {
-				std::cout << "element [" << i << "][" << i << "] jest =0!\n";
-				return Matrix();
-			}
-
-			p = temp[j][i] / temp[i][i];
+			p = krok(temp, i, j);
 
 			if (std::fabs(p) < eps)
 				continue;
