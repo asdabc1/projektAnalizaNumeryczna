@@ -49,7 +49,7 @@ int main() {
 
 	case maksPel:
 		
-		wybor(przyklad2, gaussKol);
+		wybor(przyklad2, gaussPel);
 
 		break;
 
